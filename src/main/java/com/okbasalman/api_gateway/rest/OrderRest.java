@@ -1,4 +1,4 @@
-package com.okbasalman.api_gateway.adapter.input.rest;
+package com.okbasalman.api_gateway.rest;
 
 
 
@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/orders")
-public class OrderRestAdapter {
+public class OrderRest {
     @GetMapping
     public String Greeting(){
         return "Hello Hasan!";

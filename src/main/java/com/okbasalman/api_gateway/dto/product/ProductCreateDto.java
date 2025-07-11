@@ -1,4 +1,4 @@
-package com.okbasalman.api_gateway.domain.dto.product;
+package com.okbasalman.api_gateway.dto.product;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
