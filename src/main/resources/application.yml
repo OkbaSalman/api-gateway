@@ -1,5 +1,9 @@
-grpc:
-  client:
-    productService:
-      address: "static://localhost:9090"
-      negotiationType: PLAINTEXT
+# grpc:
+#   client:
+#     authService:
+#       address: :"static://localhost:9092"
+#       negotiationType: PLAINTEXT
+#     productService:
+#       address: "static://localhost:9090"
+#       negotiationType: PLAINTEXT
+

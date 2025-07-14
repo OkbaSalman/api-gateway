@@ -17,13 +17,15 @@ import com.okbasalman.grpc.ProductListResponse;
 import com.okbasalman.grpc.ProductResponse;
 import com.okbasalman.grpc.ProductServiceGrpc;
 import com.okbasalman.grpc.UpdateProductRequest;
-
-import net.devh.boot.grpc.client.inject.GrpcClient;
+// import io.grpc.ManagedChannel;
+// import io.grpc.ManagedChannelBuilder;
+// import net.devh.boot.grpc.client.inject.GrpcClient;
+// import org.springframework.grpc.client.GrpcClient;
 
 @Service
 public class ProductGrpc {
 
-    @GrpcClient("productService")
+    // @GrpcClient("productService")
     private ProductServiceGrpc.ProductServiceBlockingStub serviceBlockingStub;
 
     
