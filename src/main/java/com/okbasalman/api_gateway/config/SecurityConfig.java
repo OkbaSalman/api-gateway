@@ -17,9 +17,7 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable()) // Disable CSRF for stateless APIs
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(authorize -> authorize
-                .requestMatchers("/auth/**").permitAll()
-                .anyRequest().authenticated()
+            .authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll()  
             )
             .httpBasic(Customizer.withDefaults());
 
