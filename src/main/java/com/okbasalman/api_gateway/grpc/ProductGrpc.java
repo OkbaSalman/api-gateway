@@ -20,7 +20,7 @@ public class ProductGrpc {
 
     @PostConstruct
     public void init() {
-        channel = ManagedChannelBuilder.forAddress("localhost", 9090)
+        channel = ManagedChannelBuilder.forAddress("localhost", 9094)
                 .usePlaintext()
                 .build();
 
@@ -31,7 +31,13 @@ public class ProductGrpc {
     public List<ProductDto> getAllProducts() {
         ProductListResponse response = serviceBlockingStub.getAllProducts(Empty.newBuilder().build());
         return response.getProductsList().stream()
-                .map(e -> new ProductDto(e.getId(), e.getName(), e.getPrice(), e.getStock()))
+                .map(e -> new ProductDto(
+                        e.getId(),
+                        e.getName(),
+                        e.getPrice(),
+                        e.getStock(),
+                        e.getImagesUrlsList().toArray(new String[0])
+                ))
                 .collect(Collectors.toList());
     }
 
@@ -41,16 +47,29 @@ public class ProductGrpc {
                         .setName(dto.getName())
                         .setPrice(dto.getPrice())
                         .setStock(dto.getStock())
+                        .addAllImagesUrls(List.of(dto.getImagesUrls()))
                         .build()
         );
-        return new ProductDto(response.getId(), response.getName(), response.getPrice(), response.getStock());
+        return new ProductDto(
+                response.getId(),
+                response.getName(),
+                response.getPrice(),
+                response.getStock(),
+                response.getImagesUrlsList().toArray(new String[0])
+        );
     }
 
     public ProductDto getProductById(Integer id) {
         ProductResponse response = serviceBlockingStub.getProductById(
                 GetProductByIdRequest.newBuilder().setId(id).build()
         );
-        return new ProductDto(response.getId(), response.getName(), response.getPrice(), response.getStock());
+        return new ProductDto(
+                response.getId(),
+                response.getName(),
+                response.getPrice(),
+                response.getStock(),
+                response.getImagesUrlsList().toArray(new String[0])
+        );
     }
 
     public ProductDto updateProduct(ProductDto product) {
@@ -60,9 +79,16 @@ public class ProductGrpc {
                         .setName(product.getName())
                         .setPrice(product.getPrice())
                         .setStock(product.getStock())
+                        .addAllImagesUrls(List.of(product.getImagesUrls()))
                         .build()
         );
-        return new ProductDto(response.getId(), response.getName(), response.getPrice(), response.getStock());
+        return new ProductDto(
+                response.getId(),
+                response.getName(),
+                response.getPrice(),
+                response.getStock(),
+                response.getImagesUrlsList().toArray(new String[0])
+        );
     }
 
     public DeleteProductResultDto deleteProduct(Integer id) {
