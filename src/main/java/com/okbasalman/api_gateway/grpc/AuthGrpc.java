@@ -19,7 +19,7 @@ public class AuthGrpc {
 
     @PostConstruct
     public void init() {
-        channel = ManagedChannelBuilder.forAddress("localhost", 9091)
+        channel = ManagedChannelBuilder.forAddress("16.171.227.90", 9090)
                 .usePlaintext() // Use plaintext for local development
                 .build();
 
@@ -68,23 +68,23 @@ public class AuthGrpc {
             return ResponseEntity.status(400).body("Refresh Token is expired");
         }
     }
-    public ResponseEntity<?> getUserInfo(String accessToken){
-        try {
-            Metadata metadata = new Metadata();
-        Metadata.Key<String> AUTHORIZATION_HEADER =
-            Metadata.Key.of("Authorization", Metadata.ASCII_STRING_MARSHALLER);
-        metadata.put(AUTHORIZATION_HEADER, "Bearer " + accessToken);
+    // public ResponseEntity<?> getUserInfo(String accessToken){
+    //     try {
+    //         Metadata metadata = new Metadata();
+    //     Metadata.Key<String> AUTHORIZATION_HEADER =
+    //         Metadata.Key.of("Authorization", Metadata.ASCII_STRING_MARSHALLER);
+    //     metadata.put(AUTHORIZATION_HEADER, "Bearer " + accessToken);
 
-        // Correct way to attach headers
-        AuthServiceGrpc.AuthServiceBlockingStub stubWithHeader = 
-            stub.withInterceptors(MetadataUtils.newAttachHeadersInterceptor(metadata));
+    //     // Correct way to attach headers
+    //     AuthServiceGrpc.AuthServiceBlockingStub stubWithHeader = 
+    //         stub.withInterceptors(MetadataUtils.newAttachHeadersInterceptor(metadata));
 
-        UserInfoResponse response = stubWithHeader.getUserInfo(Empty.newBuilder().build());
-        System.out.println("response: " + response);
-            UserInfoDto res= new UserInfoDto(response.getId(),response.getUsername(),response.getEmail());
-            return ResponseEntity.status(200).body(res);
-        } catch (Exception e) {
-            return ResponseEntity.status(400).body("error in user info");
-        }
-    }
+    //     UserInfoResponse response = stubWithHeader.getUserInfo(Empty.newBuilder().build());
+    //     System.out.println("response: " + response);
+    //         UserInfoDto res= new UserInfoDto(response.getId(),response.getUsername(),response.getEmail());
+    //         return ResponseEntity.status(200).body(res);
+    //     } catch (Exception e) {
+    //         return ResponseEntity.status(400).body("error in user info");
+    //     }
+    // }
 }

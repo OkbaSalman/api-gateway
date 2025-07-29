@@ -50,13 +50,13 @@ public class AuthRest {
     public ResponseEntity<?> logout(@RequestBody LogoutDto request){
         return authGrpc.logout(request);
     }
-    @PostMapping("/refreshToken")
-    public ResponseEntity<?> refreshToken(@RequestBody RefreshDto request){
-        return authGrpc.refreshToken(request);
-    }
-    @GetMapping("/userInfo")
-    public ResponseEntity<?> userInfo(@RequestHeader("Authorization") String accessToken){
-        return authGrpc.getUserInfo(accessToken);
-    }
+    // @PostMapping("/refreshToken")
+    // public ResponseEntity<?> refreshToken(@RequestBody RefreshDto request){
+    //     return authGrpc.refreshToken(request);
+    // }
+    // @GetMapping("/userInfo")
+    // public ResponseEntity<?> userInfo(@RequestHeader("Authorization") String accessToken){
+    //     return authGrpc.getUserInfo(accessToken);
+    // }
     
 }
