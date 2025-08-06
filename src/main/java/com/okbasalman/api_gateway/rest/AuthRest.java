@@ -1,7 +1,9 @@
 package com.okbasalman.api_gateway.rest;
 // import java.util.List;
 
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 // import org.springframework.web.bind.annotation.DeleteMapping;
 // import org.springframework.web.bind.annotation.GetMapping;
 // import org.springframework.web.bind.annotation.PathVariable;
@@ -38,22 +40,23 @@ public class AuthRest {
         this.authGrpc = authGrpc;
     }
 
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginDto request,@AuthenticationPrincipal Jwt jwt){
+        // System.out.println(jwt.getClaimAsString("email"));
+        return authGrpc.login(request);
+    }
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterDto request){
         return authGrpc.register(request);
-    }
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginDto request){
-        return authGrpc.login(request);
     }
     @PostMapping("/logout")
     public ResponseEntity<?> logout(@RequestBody LogoutDto request){
         return authGrpc.logout(request);
     }
-    // @PostMapping("/refreshToken")
-    // public ResponseEntity<?> refreshToken(@RequestBody RefreshDto request){
-    //     return authGrpc.refreshToken(request);
-    // }
+    @PostMapping("/refreshToken")
+    public ResponseEntity<?> refreshToken(@RequestBody RefreshDto request){
+        return authGrpc.refreshToken(request);
+    }
     // @GetMapping("/userInfo")
     // public ResponseEntity<?> userInfo(@RequestHeader("Authorization") String accessToken){
     //     return authGrpc.getUserInfo(accessToken);

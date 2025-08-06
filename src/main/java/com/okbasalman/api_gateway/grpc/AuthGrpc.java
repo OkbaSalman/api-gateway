@@ -7,6 +7,7 @@ import io.grpc.Metadata;
 import io.grpc.stub.MetadataUtils;
 import jakarta.annotation.PostConstruct;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import io.grpc.Metadata;
@@ -16,14 +17,22 @@ import com.okbasalman.api_gateway.dto.auth.*;
 public class AuthGrpc {
     private ManagedChannel channel;
     private AuthServiceGrpc.AuthServiceBlockingStub stub;
-
+    @Value("${api.gateway-key}")
+    private String apiGatewayKey;
     @PostConstruct
     public void init() {
-        channel = ManagedChannelBuilder.forAddress("16.171.227.90", 9090)
+        channel = ManagedChannelBuilder.forAddress("localhost", 9090)
                 .usePlaintext() // Use plaintext for local development
                 .build();
+                // Create metadata with API key header
+        // Metadata metadata = new Metadata();
+        // Metadata.Key<String> apiKeyHeader = Metadata.Key.of("x-api-gateway-key", Metadata.ASCII_STRING_MARSHALLER);
+        // metadata.put(apiKeyHeader, apiGatewayKey);
 
+        // Attach metadata to stub so all calls include the header
         stub = AuthServiceGrpc.newBlockingStub(channel);
+        // stub = MetadataUtils.attachHeaders(stub, metadata);
+        // stub = AuthServiceGrpc.newBlockingStub(channel);
         System.out.println("gRPC channel initialized successfully");
     }
 
@@ -38,7 +47,6 @@ public class AuthGrpc {
     }
     public ResponseEntity<?> login(LoginDto loginDto){
         try {
-            
             LoginResponse response=stub.login(LoginRequest.newBuilder().setEmail(loginDto.getEmail()).setPassword(loginDto.getPassword()).build());
             ResponseLoginDto res= new ResponseLoginDto(response.getAccessToken(),response.getExpiresIn(),response.getRefreshExpiresIn(),response.getRefreshToken());
             return ResponseEntity.status(200).body(res);
