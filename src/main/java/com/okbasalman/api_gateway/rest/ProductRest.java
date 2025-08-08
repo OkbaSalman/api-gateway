@@ -27,7 +27,7 @@ public class ProductRest {
     }
 
     @GetMapping("/{id}")
-    public ProductDto geProduct(@PathVariable Integer id){
+    public ProductDto geProduct(@PathVariable Long id){
         return  productGrpc.getProductById(id);
     }
 

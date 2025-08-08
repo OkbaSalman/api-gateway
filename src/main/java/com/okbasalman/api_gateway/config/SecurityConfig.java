@@ -12,30 +12,26 @@ import org.springframework.security.oauth2.jwt.JwtDecoders;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-    @Value("${keycloak.auth-server-url}")
-    private String keycloakUrl;
+    // @Value("${keycloak.auth-server-url}")
+    // private String keycloakUrl;
 
-    @Value("${keycloak.realm}")
-    private String realm;
+    // @Value("${keycloak.realm}")
+    // private String realm;
     
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtDecoder jwtDecoder) throws Exception {
+    // JwtDecoder jwtDecoder
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .authorizeHttpRequests(authz -> authz
-                .requestMatchers(
-                    "/auth/**"
-                ).permitAll()
-                .anyRequest().authenticated()
-            )
-            .csrf(csrf -> csrf.disable());
+            .authorizeHttpRequests(authz -> authz.anyRequest().permitAll());
+            //.csrf(csrf -> csrf.disable());
 
         return http.build();
     }
 
-    @Bean
-    public JwtDecoder jwtDecoder() {
-        // Let Spring auto-discover the issuer URI from your Keycloak config
-        return JwtDecoders.fromIssuerLocation(keycloakUrl + "/realms/" + realm);
-    }
+     //@Bean
+    // public JwtDecoder jwtDecoder() {
+    //     // Let Spring auto-discover the issuer URI from your Keycloak config
+    //     return JwtDecoders.fromIssuerLocation(keycloakUrl + "/realms/" + realm);
+    // }
 }
 
