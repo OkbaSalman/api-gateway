@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import io.grpc.Metadata;
 import io.grpc.stub.MetadataUtils;
+
+// import com.okbasalman.api_gateway.config.ApiKeyClientInterceptor;
 import com.okbasalman.api_gateway.dto.auth.*;
 @Service
 public class AuthGrpc {
@@ -21,7 +23,7 @@ public class AuthGrpc {
     private String apiGatewayKey;
     @PostConstruct
     public void init() {
-        channel = ManagedChannelBuilder.forAddress("localhost", 9090)
+        channel = ManagedChannelBuilder.forAddress("16.171.227.90", 9090)
                 .usePlaintext() // Use plaintext for local development
                 .build();
                 // Create metadata with API key header
@@ -30,7 +32,9 @@ public class AuthGrpc {
         // metadata.put(apiKeyHeader, apiGatewayKey);
 
         // Attach metadata to stub so all calls include the header
-        stub = AuthServiceGrpc.newBlockingStub(channel);
+        stub = AuthServiceGrpc
+            .newBlockingStub(channel);
+            // .withInterceptors(new ApiKeyClientInterceptor(apiGatewayKey));
         // stub = MetadataUtils.attachHeaders(stub, metadata);
         // stub = AuthServiceGrpc.newBlockingStub(channel);
         System.out.println("gRPC channel initialized successfully");
