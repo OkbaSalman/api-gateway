@@ -9,9 +9,11 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProductCreateDto {
-    private String name;
-    private String description;
-    private String season;
-    private List<ProductVariantCreateDto> variants;
+public class ProductVariantDto {
+    private Long id;
+    private double price;
+    private int stock;
+    private String color;
+    private String size;
+    private List<ProductImageDto> images;
 }

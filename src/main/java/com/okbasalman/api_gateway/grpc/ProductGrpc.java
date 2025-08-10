@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.google.protobuf.Empty;
 import com.okbasalman.api_gateway.dto.product.*;
 
 @Service
@@ -31,70 +32,103 @@ public class ProductGrpc {
     public List<ProductDto> getAllProducts() {
         ProductListResponse response = serviceBlockingStub.getAllProducts(Empty.newBuilder().build());
         return response.getProductsList().stream()
-                .map(e -> new ProductDto(
-                        e.getId(),
-                        e.getName(),
-                        e.getPrice(),
-                        e.getStock(),
-                        e.getImagesUrlsList().toArray(new String[0])
-                ))
+                .map(this::mapProductResponseToDto)
                 .collect(Collectors.toList());
     }
 
     public ProductDto createProduct(ProductCreateDto dto) {
-        ProductResponse response = serviceBlockingStub.createProduct(
-                CreateProductRequest.newBuilder()
-                        .setName(dto.getName())
-                        .setPrice(dto.getPrice())
-                        .setStock(dto.getStock())
-                        .addAllImagesUrls(List.of(dto.getImagesUrls()))
-                        .build()
-        );
-        return new ProductDto(
-                response.getId(),
-                response.getName(),
-                response.getPrice(),
-                response.getStock(),
-                response.getImagesUrlsList().toArray(new String[0])
-        );
+        List<ProductVariantCreateRequest> variantRequests = dto.getVariants().stream()
+                .map(variantDto -> ProductVariantCreateRequest.newBuilder()
+                        .setPrice(variantDto.getPrice())
+                        .setStock(variantDto.getStock())
+                        .setColor(variantDto.getColor())
+                        .setSize(variantDto.getSize())
+                        .addAllBase64Images(variantDto.getBase64Images())
+                        .build())
+                .collect(Collectors.toList());
+
+        CreateProductRequest request = CreateProductRequest.newBuilder()
+                .setName(dto.getName())
+                .setDescription(dto.getDescription())
+                .setSeason(dto.getSeason())
+                .addAllVariants(variantRequests)
+                .build();
+
+        ProductResponse response = serviceBlockingStub.createProduct(request);
+        return mapProductResponseToDto(response);
     }
 
-    public ProductDto getProductById(Integer id) {
+    public ProductDto getProductById(long id) {
         ProductResponse response = serviceBlockingStub.getProductById(
                 GetProductByIdRequest.newBuilder().setId(id).build()
         );
-        return new ProductDto(
-                response.getId(),
-                response.getName(),
-                response.getPrice(),
-                response.getStock(),
-                response.getImagesUrlsList().toArray(new String[0])
-        );
+        return mapProductResponseToDto(response);
     }
 
     public ProductDto updateProduct(ProductDto product) {
-        ProductResponse response = serviceBlockingStub.updateProduct(
-                UpdateProductRequest.newBuilder()
-                        .setId(product.getId())
-                        .setName(product.getName())
-                        .setPrice(product.getPrice())
-                        .setStock(product.getStock())
-                        .addAllImagesUrls(List.of(product.getImagesUrls()))
-                        .build()
-        );
-        return new ProductDto(
-                response.getId(),
-                response.getName(),
-                response.getPrice(),
-                response.getStock(),
-                response.getImagesUrlsList().toArray(new String[0])
-        );
+        List<ProductVariantUpdateRequest> variantRequests = product.getVariants().stream()
+                .map(variantDto -> {
+                    ProductVariantUpdateRequest.Builder builder = ProductVariantUpdateRequest.newBuilder()
+                            .setId(variantDto.getId())
+                            .setPrice(variantDto.getPrice())
+                            .setStock(variantDto.getStock())
+                            .setColor(variantDto.getColor())
+                            .setSize(variantDto.getSize());
+
+                    List<ProductImageUpdateRequest> imageUpdateRequests = variantDto.getImages().stream()
+                            .map(imageDto -> ProductImageUpdateRequest.newBuilder()
+                                    .setId(imageDto.getId())
+                                    .setBase64Data(imageDto.getBase64Data())
+                                    .build())
+                            .collect(Collectors.toList());
+
+                    return builder.addAllImages(imageUpdateRequests).build();
+                })
+                .collect(Collectors.toList());
+
+        UpdateProductRequest request = UpdateProductRequest.newBuilder()
+                .setId(product.getId())
+                .setName(product.getName())
+                .setDescription(product.getDescription())
+                .setSeason(product.getSeason())
+                .addAllVariants(variantRequests)
+                .build();
+
+        ProductResponse response = serviceBlockingStub.updateProduct(request);
+        return mapProductResponseToDto(response);
     }
 
-    public DeleteProductResultDto deleteProduct(Integer id) {
+    public DeleteProductResultDto deleteProduct(long id) {
         DeleteProductResponse response = serviceBlockingStub.deleteProduct(
                 DeleteProductRequest.newBuilder().setId(id).build()
         );
         return new DeleteProductResultDto(response.getSuccess(), response.getMessage());
+    }
+
+    private ProductDto mapProductResponseToDto(ProductResponse response) {
+        List<ProductVariantDto> variants = response.getVariantsList().stream()
+                .map(variantResponse -> {
+                    List<ProductImageDto> images = variantResponse.getImagesList().stream()
+                            .map(imageResponse -> new ProductImageDto(imageResponse.getId(), imageResponse.getBase64Data()))
+                            .collect(Collectors.toList());
+
+                    return new ProductVariantDto(
+                            variantResponse.getId(),
+                            variantResponse.getPrice(),
+                            variantResponse.getStock(),
+                            variantResponse.getColor(),
+                            variantResponse.getSize(),
+                            images
+                    );
+                })
+                .collect(Collectors.toList());
+
+        return new ProductDto(
+                response.getId(),
+                response.getName(),
+                response.getDescription(),
+                response.getSeason(),
+                variants
+        );
     }
 }
