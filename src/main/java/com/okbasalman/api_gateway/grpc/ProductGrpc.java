@@ -21,7 +21,7 @@ public class ProductGrpc {
 
     @PostConstruct
     public void init() {
-        channel = ManagedChannelBuilder.forAddress("localhost", 9094)
+        channel = ManagedChannelBuilder.forAddress("5.230.47.162", 9094)
                 .usePlaintext()
                 .build();
 

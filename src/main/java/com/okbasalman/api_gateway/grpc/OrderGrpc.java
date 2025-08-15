@@ -20,7 +20,7 @@ public class OrderGrpc {
 
     @PostConstruct
     public void init() {
-        channel = ManagedChannelBuilder.forAddress("localhost", 9092)
+        channel = ManagedChannelBuilder.forAddress("5.230.47.162", 9092)
                 .usePlaintext()
                 .build();
 
