@@ -23,7 +23,7 @@ public class AuthGrpc {
     private String apiGatewayKey;
     @PostConstruct
     public void init() {
-        channel = ManagedChannelBuilder.forAddress("16.171.227.90", 9090)
+        channel = ManagedChannelBuilder.forAddress("13.60.2.117", 9090)
                 .usePlaintext() // Use plaintext for local development
                 .build();
                 // Create metadata with API key header
@@ -37,7 +37,7 @@ public class AuthGrpc {
             // .withInterceptors(new ApiKeyClientInterceptor(apiGatewayKey));
         // stub = MetadataUtils.attachHeaders(stub, metadata);
         // stub = AuthServiceGrpc.newBlockingStub(channel);
-        System.out.println("gRPC channel initialized successfully");
+        System.out.println("Auth gRPC channel initialized successfully");
     }
 
     public ResponseEntity<?> register(RegisterDto registerDto){

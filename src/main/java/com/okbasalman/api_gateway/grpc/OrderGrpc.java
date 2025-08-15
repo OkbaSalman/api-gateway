@@ -28,10 +28,10 @@ public class OrderGrpc {
         System.out.println("Order gRPC channel initialized successfully");
     }
 
-    public CreateOrderResultDto createOrder(OrderCreateDto dto) {
+    public CreateOrderResultDto createOrder(OrderCreateDto dto,String email,String id) {
         CreateOrderRequest.Builder builder = CreateOrderRequest.newBuilder()
-                .setUserId(dto.getUserId())
-                .setEmail(dto.getEmail())
+                .setUserId(id)
+                .setEmail(email)
                 .setAddress(dto.getAddress());
 
         dto.getItems().forEach(item ->

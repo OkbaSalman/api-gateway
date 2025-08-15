@@ -10,9 +10,6 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class OrderCreateDto {
-    @JsonProperty("user_id")
-    private String userId;
-    private String email;
     private String address;
     private List<OrderItemDto> items;
     

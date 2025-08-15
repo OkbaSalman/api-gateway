@@ -3,8 +3,10 @@ package com.okbasalman.api_gateway.rest;
 import com.okbasalman.api_gateway.dto.order.*;
 import com.okbasalman.api_gateway.grpc.OrderGrpc;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/orders")
@@ -17,8 +19,11 @@ public class OrderRest {
     }
 
     @PostMapping
-    public CreateOrderResultDto createOrder(@RequestBody OrderCreateDto dto) {
-        return orderGrpc.createOrder(dto);
+    public CreateOrderResultDto createOrder(@RequestBody OrderCreateDto dto ,@AuthenticationPrincipal Jwt jwt) {
+        Map<String, Object> claims = jwt.getClaims();
+        String email =(String) claims.get("email");
+        String id =(String) claims.get("sub");
+        return orderGrpc.createOrder(dto,email,id);
     }
 
     @GetMapping
