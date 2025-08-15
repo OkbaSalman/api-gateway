@@ -70,10 +70,10 @@ public class AuthGrpc {
         }
     }
 
-    public ResponseEntity<?> refreshToken(RefreshDto refreshDto){
+    public ResponseEntity<?> refreshToken(String refreshDto){
         try {
             
-            RefreshResponse response=stub.refreshToken(RefreshRequest.newBuilder().setRefreshToken(refreshDto.getRefreshToken()).build());
+            RefreshResponse response=stub.refreshToken(RefreshRequest.newBuilder().setRefreshToken(refreshDto).build());
             ResponseLoginDto res= new ResponseLoginDto(response.getAccessToken(),response.getExpiresIn(),response.getRefreshExpiresIn(),response.getRefreshToken());
             return ResponseEntity.status(200).body(res);
         } catch (Exception e) {

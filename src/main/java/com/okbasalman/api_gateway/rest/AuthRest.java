@@ -24,8 +24,11 @@ import com.okbasalman.api_gateway.dto.auth.UserInfoDto;
 // import com.okbasalman.api_gateway.dto.product.ProductDto;
 import com.okbasalman.api_gateway.grpc.AuthGrpc;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.ws.rs.HeaderParam;
 
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -41,9 +44,28 @@ public class AuthRest {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginDto request,@AuthenticationPrincipal Jwt jwt){
-        // System.out.println(jwt.getClaimAsString("email"));
-        return authGrpc.login(request);
+    public ResponseEntity<?> login(@RequestBody LoginDto request,HttpServletResponse response){
+         ResponseEntity<?> loginResponse = authGrpc.login(request);
+    if (loginResponse.getStatusCode().is2xxSuccessful()) {
+        ResponseLoginDto tokens = (ResponseLoginDto) loginResponse.getBody();
+
+        Cookie refreshTokenCookie = new Cookie("refreshToken", tokens.getRefresh_token());
+        refreshTokenCookie.setHttpOnly(true);
+        refreshTokenCookie.setSecure(true);
+        refreshTokenCookie.setPath("/");
+        refreshTokenCookie.setMaxAge(tokens.getRefresh_expires_in());
+        response.addCookie(refreshTokenCookie);
+
+        // Add SameSite manually
+        String cookieValue = String.format("refreshToken=%s; Max-Age=%d; Path=/; HttpOnly; Secure; SameSite=Strict",
+            tokens.getRefresh_token(), tokens.getRefresh_expires_in());
+        response.setHeader("Set-Cookie", cookieValue);
+
+        ResponseLoginDto bodyWithoutRefresh = new ResponseLoginDto(tokens.getAccess_token(),
+                                  tokens.getExpires_in(), 0, null);
+        return ResponseEntity.ok(bodyWithoutRefresh);
+    }
+    return loginResponse;
     }
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterDto request){
@@ -54,8 +76,15 @@ public class AuthRest {
         return authGrpc.logout(request);
     }
     @PostMapping("/refreshToken")
-    public ResponseEntity<?> refreshToken(@RequestBody RefreshDto request){
-        return authGrpc.refreshToken(request);
+    public ResponseEntity<?> refreshToken(@CookieValue(name = "refreshToken", required = false) String request){
+        ResponseEntity<?> refreshResponse= authGrpc.refreshToken(request);
+        if(refreshResponse.getStatusCode().is2xxSuccessful()){
+            ResponseLoginDto tokens = (ResponseLoginDto) refreshResponse.getBody();
+            ResponseLoginDto bodyWithoutRefresh = new ResponseLoginDto(tokens.getAccess_token(),
+                                  tokens.getExpires_in(), 0, null);
+        return ResponseEntity.ok(bodyWithoutRefresh);
+        }
+        return refreshResponse;
     }
     // @GetMapping("/userInfo")
     // public ResponseEntity<?> userInfo(@RequestHeader("Authorization") String accessToken){

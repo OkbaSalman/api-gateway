@@ -37,7 +37,6 @@ public class SecurityConfig {
                 .jwt(jwt -> jwt.decoder(jwtDecoder))
             )
             .csrf(csrf -> csrf.disable());
-
         return http.build();
     }
 
