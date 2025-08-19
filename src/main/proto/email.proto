@@ -1,0 +1,28 @@
+syntax = "proto3";
+package email;
+option java_multiple_files = true;
+option java_package = "com.email.grpc";
+option java_outer_classname = "EmailProto";
+service EmailService {
+  rpc SendEmail (SendEmailRequest) returns (SendEmailResponse);
+  rpc CheckEmail (VerifyCodeRequest) returns (VerifyCodeResponse);
+}
+
+message SendEmailRequest {
+  string email = 1;
+  string username = 2;
+}
+
+message SendEmailResponse {
+  bool success = 1;
+  string message = 2;
+}
+message VerifyCodeRequest {
+  string email = 1;
+  string code = 2;
+}
+
+message VerifyCodeResponse {
+  string email = 1;
+  bool  success = 2;
+}

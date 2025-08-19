@@ -23,7 +23,7 @@ public class AuthGrpc {
     private String apiGatewayKey;
     @PostConstruct
     public void init() {
-        channel = ManagedChannelBuilder.forAddress("13.60.2.117", 9090)
+        channel = ManagedChannelBuilder.forAddress("localhost", 9090)
                 .usePlaintext() // Use plaintext for local development
                 .build();
                 // Create metadata with API key header
@@ -41,10 +41,11 @@ public class AuthGrpc {
     }
 
     public ResponseEntity<?> register(RegisterDto registerDto){
+        System.out.println("regis1: "+registerDto);
         try {
             
             RegisterResponse response=stub.register(User.newBuilder().setEmail(registerDto.getEmail()).setPassword(registerDto.getPassword()).setUsername(registerDto.getUsername()).build());
-            return ResponseEntity.status(200).body(response.getMessage());
+            return ResponseEntity.status(response.getStatusCode()).body(response.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(404).body("not found");
         }

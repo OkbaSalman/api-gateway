@@ -26,11 +26,9 @@ import com.okbasalman.api_gateway.grpc.AuthGrpc;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.ws.rs.HeaderParam;
 
 import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+
 
 // import com.okbasalman.api_gateway.grpc.ProductGrpc;
 // import com.okbasalman.api_gateway.dto.product.ProductCreateDto;
@@ -69,6 +67,7 @@ public class AuthRest {
     }
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterDto request){
+        System.out.println("null:aas");
         return authGrpc.register(request);
     }
     @PostMapping("/logout")
