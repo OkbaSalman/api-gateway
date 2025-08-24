@@ -81,6 +81,15 @@ public class AuthGrpc {
             return ResponseEntity.status(400).body("Refresh Token is expired");
         }
     }
+    public ResponseEntity<?> saveEmail(String email){
+        try {
+            stub.saveEmail(VerifyEmailRequest.newBuilder().setEmail(email).build());
+            
+            return ResponseEntity.status(200).body("res");
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body("Refresh Token is expired");
+        }
+    }
     // public ResponseEntity<?> getUserInfo(String accessToken){
     //     try {
     //         Metadata metadata = new Metadata();

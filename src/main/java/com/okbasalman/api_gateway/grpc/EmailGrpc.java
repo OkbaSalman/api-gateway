@@ -6,20 +6,20 @@ import io.grpc.ManagedChannelBuilder;
 import com.email.grpc.*;
 import com.okbasalman.api_gateway.dto.email.CheckEmailDto;
 import com.okbasalman.api_gateway.dto.email.SendEmailDto;
-
+import com.okbasalman.api_gateway.grpc.AuthGrpc;
 import org.springframework.stereotype.Component;
 
 @Component
 public class EmailGrpc {
-
+    private final AuthGrpc authGrpc;
     private final EmailServiceGrpc.EmailServiceBlockingStub emailStub;
 
-    public EmailGrpc() {
+    public EmailGrpc(AuthGrpc authGrpc) {
         // 👇 Adjust host/port to where your Email service is running
         ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 50052)
                 .usePlaintext()
                 .build();
-
+        this.authGrpc=authGrpc;
         emailStub = EmailServiceGrpc.newBlockingStub(channel);
     }
 
@@ -39,6 +39,10 @@ public class EmailGrpc {
                 .setCode(checkEmailDto.getCode())
                 .build();
                 VerifyCodeResponse response = emailStub.checkEmail(request);
+                if (response.getSuccess()) {
+                    System.out.println("response1: "+response.getEmail());
+                    authGrpc.saveEmail(response.getEmail());
+                }
         return response.getSuccess();
     }
 }
