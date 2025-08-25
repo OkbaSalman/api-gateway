@@ -41,7 +41,7 @@ public class OrderRest {
         return orderGrpc.deleteOrder(orderId);
     }
 
-    @PutMapping("/{orderId}/status")
+    @GetMapping("/{orderId}/status")
     public UpdateOrderStatusResultDto updateOrderStatus(@PathVariable Long orderId, @RequestParam String status) {
         return orderGrpc.updateOrderStatus(orderId, status);
     }

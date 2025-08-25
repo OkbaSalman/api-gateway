@@ -36,22 +36,22 @@ public class ProductRest {
 
     @GetMapping
     public List<ProductDto> getAllProducts(@AuthenticationPrincipal Jwt jwt){
-         if (jwt == null) {
-            return List.of();
-        }
+        //  if (jwt == null) {
+        //     return List.of();
+        // }
 
-        Map<String, Object> resourceAccess = jwt.getClaim("resource_access");
-        if (resourceAccess == null) {
-            return List.of();
-        }
+        // Map<String, Object> resourceAccess = jwt.getClaim("resource_access");
+        // if (resourceAccess == null) {
+        //     return List.of();
+        // }
 
-        Map<String, Object> serviceAccess =
-                (Map<String, Object>) resourceAccess.get("authentication-service");
-        if (serviceAccess == null) {
-            return List.of();
-        }
+        // Map<String, Object> serviceAccess =
+        //         (Map<String, Object>) resourceAccess.get("authentication-service");
+        // if (serviceAccess == null) {
+        //     return List.of();
+        // }
 
-        List<String> roles = (List<String>) serviceAccess.get("roles");
+        // List<String> roles = (List<String>) serviceAccess.get("roles");
         return productGrpc.getAllProducts();
     }
 

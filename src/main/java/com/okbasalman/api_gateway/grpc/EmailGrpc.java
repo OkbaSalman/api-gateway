@@ -16,7 +16,7 @@ public class EmailGrpc {
 
     public EmailGrpc(AuthGrpc authGrpc) {
         // 👇 Adjust host/port to where your Email service is running
-        ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 50052)
+        ManagedChannel channel = ManagedChannelBuilder.forAddress("5.230.47.162", 50052)
                 .usePlaintext()
                 .build();
         this.authGrpc=authGrpc;
