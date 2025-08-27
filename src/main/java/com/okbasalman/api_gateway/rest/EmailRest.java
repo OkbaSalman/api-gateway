@@ -29,6 +29,7 @@ public class EmailRest {
 
     @PostMapping("/checkCode")
     public ResponseEntity<?> checkCode(@RequestBody CheckEmailDto request){
+        System.out.println(request.getCode()+"  "+request.getEmail()+ "  sfdas");
         boolean res= emailGrpc.checkEmail(request);
         return ResponseEntity.status(res?200:400).body(res);
     }

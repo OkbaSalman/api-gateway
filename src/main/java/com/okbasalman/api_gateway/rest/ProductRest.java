@@ -31,6 +31,7 @@ public class ProductRest {
 
     @GetMapping("/{id}")
     public ProductDto geProduct(@PathVariable Long id){
+        System.out.println("1231243");
         return  productGrpc.getProductById(id);
     }
 
@@ -62,6 +63,7 @@ public class ProductRest {
 
     @PutMapping("/{id}")
     public ProductDto updateProduct(@RequestBody ProductDto product){
+        System.out.println(product);
         return productGrpc.updateProduct(product);
     }
 

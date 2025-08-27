@@ -6,7 +6,6 @@ import io.grpc.ManagedChannelBuilder;
 import com.email.grpc.*;
 import com.okbasalman.api_gateway.dto.email.CheckEmailDto;
 import com.okbasalman.api_gateway.dto.email.SendEmailDto;
-import com.okbasalman.api_gateway.grpc.AuthGrpc;
 import org.springframework.stereotype.Component;
 
 @Component

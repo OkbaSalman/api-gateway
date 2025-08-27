@@ -29,6 +29,7 @@ message LoginResponse{
   int32 expires_in = 2;
   int32 refresh_expires_in = 3;
   string refresh_token = 4;
+  string role = 5;
 }
 // Logout
 message LogoutRequest{
@@ -43,29 +44,49 @@ message RefreshRequest{
   string refresh_token = 1;
 }
 message RefreshResponse{
-   string access_token = 1;
-   int32 expires_in = 2;
-   int32 refresh_expires_in = 3;
-   string refresh_token = 4;
+  string access_token = 1;
+  int32 expires_in = 2;
+  int32 refresh_expires_in = 3;
+  string refresh_token = 4;
+  string role = 5 ;
 }
 
 
 //User Info
-message UserInfoResponse{
-  string id = 1;
-  string email = 2;
-  string username = 3;
+message UserInfoRequest{
+  string email = 1;
+  
 }
+message UserInfoResponse{
+  string username = 1;
+  repeated string favoriteProducts= 2;
+}
+
+
+message DeleteRequest{
+  string email = 1;
+}
+
 message VerifyEmailRequest{
   string email = 1;
 }
+message ToggleFavoriteProductRequest{
+  int64 id = 1;
+  string email = 2;
+}
+message ToggleFavoriteProductResponse{
+  bool success = 1;
+}
 message Empty{}
+
 // Service definition
 service AuthService {
   rpc Register (User) returns (RegisterResponse);
   rpc Login (LoginRequest) returns (LoginResponse);
   rpc Logout (LogoutRequest) returns (LogoutResponse);
   rpc RefreshToken (RefreshRequest) returns (RefreshResponse);
-  rpc GetUserInfo (Empty) returns (UserInfoResponse);
+  rpc GetUserInfo (UserInfoRequest) returns (UserInfoResponse);
+  rpc DeleteUser (DeleteRequest) returns (Empty);
   rpc SaveEmail (VerifyEmailRequest) returns (Empty);
+  rpc ToggleFavoriteProduct (ToggleFavoriteProductRequest) returns (ToggleFavoriteProductResponse);
 }

@@ -5,8 +5,6 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class UserInfoDto {
-    private String id;
-    private String username;
+public class UserNameDto {
     private String email;
 }

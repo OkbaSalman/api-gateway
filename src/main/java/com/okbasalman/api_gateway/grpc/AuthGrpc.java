@@ -3,17 +3,13 @@ package com.okbasalman.api_gateway.grpc;
 import com.okbasalman.grpcauth.*;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import io.grpc.Metadata;
-import io.grpc.stub.MetadataUtils;
+
 import jakarta.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import io.grpc.Metadata;
-import io.grpc.stub.MetadataUtils;
 
-// import com.okbasalman.api_gateway.config.ApiKeyClientInterceptor;
 import com.okbasalman.api_gateway.dto.auth.*;
 @Service
 public class AuthGrpc {
@@ -24,19 +20,11 @@ public class AuthGrpc {
     @PostConstruct
     public void init() {
         channel = ManagedChannelBuilder.forAddress("localhost", 9090)
-                .usePlaintext() // Use plaintext for local development
+                .usePlaintext() 
                 .build();
-                // Create metadata with API key header
-        // Metadata metadata = new Metadata();
-        // Metadata.Key<String> apiKeyHeader = Metadata.Key.of("x-api-gateway-key", Metadata.ASCII_STRING_MARSHALLER);
-        // metadata.put(apiKeyHeader, apiGatewayKey);
-
-        // Attach metadata to stub so all calls include the header
         stub = AuthServiceGrpc
             .newBlockingStub(channel);
-            // .withInterceptors(new ApiKeyClientInterceptor(apiGatewayKey));
-        // stub = MetadataUtils.attachHeaders(stub, metadata);
-        // stub = AuthServiceGrpc.newBlockingStub(channel);
+
         System.out.println("Auth gRPC channel initialized successfully");
     }
 
@@ -45,6 +33,7 @@ public class AuthGrpc {
         try {
             
             RegisterResponse response=stub.register(User.newBuilder().setEmail(registerDto.getEmail()).setPassword(registerDto.getPassword()).setUsername(registerDto.getUsername()).build());
+            System.out.println(response.getMessage());
             return ResponseEntity.status(response.getStatusCode()).body(response.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(404).body("not found");
@@ -53,17 +42,19 @@ public class AuthGrpc {
     public ResponseEntity<?> login(LoginDto loginDto){
         try {
             LoginResponse response=stub.login(LoginRequest.newBuilder().setEmail(loginDto.getEmail()).setPassword(loginDto.getPassword()).build());
-            ResponseLoginDto res= new ResponseLoginDto(response.getAccessToken(),response.getExpiresIn(),response.getRefreshExpiresIn(),response.getRefreshToken());
+            ResponseLoginDto res= new ResponseLoginDto(response.getAccessToken(),response.getExpiresIn(),response.getRefreshExpiresIn(),response.getRefreshToken(),response.getRole());
             return ResponseEntity.status(200).body(res);
         } catch (Exception e) {
+            if(e.getLocalizedMessage().equals("DATA_LOSS: User not Verified"))
+            return ResponseEntity.status(403).body("User not Verified");
             return ResponseEntity.status(404).body("not found");
         }
     }
 
-    public ResponseEntity<?> logout(LogoutDto logoutDto){
+    public ResponseEntity<?> logout(String logoutDto){
         try {
             
-            LogoutResponse response=stub.logout(LogoutRequest.newBuilder().setRefreshToken(logoutDto.getRefreshToken()).build());
+            LogoutResponse response=stub.logout(LogoutRequest.newBuilder().setRefreshToken(logoutDto).build());
             
             return ResponseEntity.status(200).body(response.getLogout());
         } catch (Exception e) {
@@ -75,7 +66,7 @@ public class AuthGrpc {
         try {
             
             RefreshResponse response=stub.refreshToken(RefreshRequest.newBuilder().setRefreshToken(refreshDto).build());
-            ResponseLoginDto res= new ResponseLoginDto(response.getAccessToken(),response.getExpiresIn(),response.getRefreshExpiresIn(),response.getRefreshToken());
+            ResponseLoginDto res= new ResponseLoginDto(response.getAccessToken(),response.getExpiresIn(),response.getRefreshExpiresIn(),response.getRefreshToken(),response.getRole());
             return ResponseEntity.status(200).body(res);
         } catch (Exception e) {
             return ResponseEntity.status(400).body("Refresh Token is expired");
@@ -90,23 +81,33 @@ public class AuthGrpc {
             return ResponseEntity.status(400).body("Refresh Token is expired");
         }
     }
-    // public ResponseEntity<?> getUserInfo(String accessToken){
-    //     try {
-    //         Metadata metadata = new Metadata();
-    //     Metadata.Key<String> AUTHORIZATION_HEADER =
-    //         Metadata.Key.of("Authorization", Metadata.ASCII_STRING_MARSHALLER);
-    //     metadata.put(AUTHORIZATION_HEADER, "Bearer " + accessToken);
-
-    //     // Correct way to attach headers
-    //     AuthServiceGrpc.AuthServiceBlockingStub stubWithHeader = 
-    //         stub.withInterceptors(MetadataUtils.newAttachHeadersInterceptor(metadata));
-
-    //     UserInfoResponse response = stubWithHeader.getUserInfo(Empty.newBuilder().build());
-    //     System.out.println("response: " + response);
-    //         UserInfoDto res= new UserInfoDto(response.getId(),response.getUsername(),response.getEmail());
-    //         return ResponseEntity.status(200).body(res);
-    //     } catch (Exception e) {
-    //         return ResponseEntity.status(400).body("error in user info");
-    //     }
-    // }
+    public ResponseEntity<?> getUserInfo(String email ){
+        try {
+            UserInfoResponse response = stub.getUserInfo(UserInfoRequest.newBuilder().setEmail(email).build());
+            ToggleFavoriteProductDtoResponse toggleFavoriteProductDtoResponse=new ToggleFavoriteProductDtoResponse();
+            toggleFavoriteProductDtoResponse.setUsername(response.getUsername());
+            toggleFavoriteProductDtoResponse.setToggleFavoriteProduc(response.getFavoriteProductsList());
+            System.out.println("asdads:"+response.getFavoriteProductsList());
+            return ResponseEntity.status(200).body(toggleFavoriteProductDtoResponse);
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body("error in user info");
+        }
+    }
+    public ResponseEntity<?> deleteUser(String email){
+        try {
+            stub.deleteUser(DeleteRequest.newBuilder().setEmail(email).build());
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body("error delete user");
+        }
+    }
+    public ResponseEntity<?> toggleFavoriteProduct(String email,Long id){
+        try {
+            System.out.println("email12334");
+            ToggleFavoriteProductResponse res= stub.toggleFavoriteProduct(ToggleFavoriteProductRequest.newBuilder().setEmail(email).setId(id).build());
+            return ResponseEntity.status(res.getSuccess()?200:400).body("");
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body("error");
+        }
+    }
 }
