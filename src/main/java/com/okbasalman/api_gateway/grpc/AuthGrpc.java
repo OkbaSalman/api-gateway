@@ -110,4 +110,13 @@ public class AuthGrpc {
             return ResponseEntity.status(400).body("error");
         }
     }
+        public ResponseEntity<?> getAllUsers(){
+        try {
+            System.out.println("email12334");
+            UsersResponse res= stub.getAllUsers(Empty.newBuilder().build());
+            return ResponseEntity.status(200).body(res);
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body("error");
+        }
+    }
 }

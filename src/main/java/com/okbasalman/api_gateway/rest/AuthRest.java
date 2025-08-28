@@ -112,6 +112,7 @@ public class AuthRest {
         ResponseEntity<?> refreshResponse= authGrpc.refreshToken(request);
         System.out.println("req: "+request);
         if(refreshResponse.getStatusCode().is2xxSuccessful()){
+            System.out.print("yes i am here");
             ResponseLoginDto tokens = (ResponseLoginDto) refreshResponse.getBody();
             ResponseLoginDto bodyWithoutRefresh = new ResponseLoginDto(tokens.getAccess_token(),
                                   tokens.getExpires_in(), 0, null,tokens.getRole());
@@ -138,6 +139,13 @@ public class AuthRest {
         Map<String, Object> claims = jwt.getClaims();
         String email =(String) claims.get("email");
         return authGrpc.toggleFavoriteProduct(email,toggleFavoriteProductDto.getId());
+    }
+    @PostMapping("/getAllUsers")
+    public ResponseEntity<?> getAllusers(@AuthenticationPrincipal Jwt jwt){
+        System.out.println("12331241");
+        Map<String, Object> claims = jwt.getClaims();
+        String email =(String) claims.get("email");
+        return authGrpc.getAllUsers();
     }
     
 }

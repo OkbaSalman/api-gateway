@@ -77,6 +77,15 @@ message ToggleFavoriteProductRequest{
 message ToggleFavoriteProductResponse{
   bool success = 1;
 }
+message Users{
+  string email = 1;
+  string username= 2;
+  int64 createdAt =3;
+  bool isEmailVerified =4;
+}
+message UsersResponse{
+  repeated Users users=1;
+}
 message Empty{}
 
 // Service definition
@@ -89,4 +98,5 @@ service AuthService {
   rpc DeleteUser (DeleteRequest) returns (Empty);
   rpc SaveEmail (VerifyEmailRequest) returns (Empty);
   rpc ToggleFavoriteProduct (ToggleFavoriteProductRequest) returns (ToggleFavoriteProductResponse);
+  rpc GetAllUsers (Empty) returns (UsersResponse);
 }
