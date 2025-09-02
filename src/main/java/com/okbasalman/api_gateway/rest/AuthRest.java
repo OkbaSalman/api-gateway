@@ -74,30 +74,24 @@ public class AuthRest {
     return loginResponse;
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginDto request,HttpServletResponse response){
-         ResponseEntity<?> loginResponse = authGrpc.login(request);
+@PostMapping("/login")
+public ResponseEntity<?> login(@RequestBody LoginDto request, HttpServletResponse response){
+    ResponseEntity<?> loginResponse = authGrpc.login(request);
     if (loginResponse.getStatusCode().is2xxSuccessful()) {
         ResponseLoginDto tokens = (ResponseLoginDto) loginResponse.getBody();
 
-        Cookie refreshTokenCookie = new Cookie("refreshToken", tokens.getRefresh_token());
-        refreshTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setSecure(true);
-        refreshTokenCookie.setPath("/");
-        refreshTokenCookie.setMaxAge(tokens.getRefresh_expires_in());
-        response.addCookie(refreshTokenCookie);
-
-        // Add SameSite manually
+        // Use only this method:
         String cookieValue = String.format("refreshToken=%s; Max-Age=%d; Path=/; HttpOnly; Secure; SameSite=Strict",
             tokens.getRefresh_token(), tokens.getRefresh_expires_in());
         response.setHeader("Set-Cookie", cookieValue);
 
         ResponseLoginDto bodyWithoutRefresh = new ResponseLoginDto(tokens.getAccess_token(),
-                                  tokens.getExpires_in(), 0, null,tokens.getRole());
+                                  tokens.getExpires_in(), 0, null, tokens.getRole());
         return ResponseEntity.ok(bodyWithoutRefresh);
     }
     return loginResponse;
-    }
+}
+
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterDto request){
         System.out.println("null:aas");
@@ -107,19 +101,39 @@ public class AuthRest {
     public ResponseEntity<?> logout(@CookieValue(name = "refreshToken", required = false) String request){
         return authGrpc.logout(request);
     }
-    @PostMapping("/refreshToken")
-    public ResponseEntity<?> refreshToken(@CookieValue(name = "refreshToken", required = false) String request){
-        ResponseEntity<?> refreshResponse= authGrpc.refreshToken(request);
-        System.out.println("req: "+request);
-        if(refreshResponse.getStatusCode().is2xxSuccessful()){
-            System.out.print("yes i am here");
-            ResponseLoginDto tokens = (ResponseLoginDto) refreshResponse.getBody();
-            ResponseLoginDto bodyWithoutRefresh = new ResponseLoginDto(tokens.getAccess_token(),
-                                  tokens.getExpires_in(), 0, null,tokens.getRole());
+@PostMapping("/refreshToken")
+public ResponseEntity<?> refreshToken(
+        @CookieValue(name = "refreshToken", required = false) String refreshToken,
+        HttpServletResponse response) {
+    
+    ResponseEntity<?> refreshResponse = authGrpc.refreshToken(refreshToken);
+    System.out.println("refreshToken: "+refreshResponse.getStatusCodeValue());
+    if (refreshResponse.getStatusCode().is2xxSuccessful()) {
+        ResponseLoginDto tokens = (ResponseLoginDto) refreshResponse.getBody();
+
+        // 🔹 Issue a new refresh token cookie
+        String cookieValue = String.format(
+            "refreshToken=%s; Max-Age=%d; Path=/; HttpOnly; Secure; SameSite=Strict",
+            tokens.getRefresh_token(), tokens.getRefresh_expires_in()
+        );
+        response.setHeader("Set-Cookie", cookieValue);
+
+        // 🔹 Return only access token (no refresh token in body)
+        ResponseLoginDto bodyWithoutRefresh = new ResponseLoginDto(
+            tokens.getAccess_token(),
+            tokens.getExpires_in(),
+            0, 
+            null,
+            tokens.getRole()
+        );
         return ResponseEntity.ok(bodyWithoutRefresh);
-        }
-        return refreshResponse;
     }
+
+    // ❌ Refresh failed → clear cookie
+    response.setHeader("Set-Cookie", "refreshToken=; Max-Age=0; Path=/; HttpOnly; Secure; SameSite=Strict");
+    return refreshResponse;
+}
+
 
     @GetMapping("/userInfo")
     public ResponseEntity<?> userInfo(@AuthenticationPrincipal Jwt jwt){
@@ -140,12 +154,6 @@ public class AuthRest {
         String email =(String) claims.get("email");
         return authGrpc.toggleFavoriteProduct(email,toggleFavoriteProductDto.getId());
     }
-    @PostMapping("/getAllUsers")
-    public ResponseEntity<?> getAllusers(@AuthenticationPrincipal Jwt jwt){
-        System.out.println("12331241");
-        Map<String, Object> claims = jwt.getClaims();
-        String email =(String) claims.get("email");
-        return authGrpc.getAllUsers();
-    }
+
     
 }

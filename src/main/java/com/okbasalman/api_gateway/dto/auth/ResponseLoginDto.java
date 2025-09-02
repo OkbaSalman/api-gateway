@@ -1,6 +1,5 @@
 package com.okbasalman.api_gateway.dto.auth;
 
-import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -2,7 +2,6 @@ package com.okbasalman.api_gateway.dto.order;
 
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
