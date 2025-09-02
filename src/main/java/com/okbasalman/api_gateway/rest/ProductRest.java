@@ -12,11 +12,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 
 import com.okbasalman.api_gateway.dto.product.DeleteProductResultDto;
+import com.okbasalman.api_gateway.dto.product.GetVariantByDetailsDto;
 import com.okbasalman.api_gateway.dto.product.ProductDto;
+import com.okbasalman.api_gateway.dto.product.ProductVariantDto;
+import com.okbasalman.api_gateway.dto.product.ProductVariantIdDto;
 import com.okbasalman.api_gateway.grpc.ProductGrpc;
 import com.okbasalman.api_gateway.dto.product.ProductCreateDto;
 
@@ -71,4 +75,18 @@ public class ProductRest {
     public DeleteProductResultDto deleteProduct(@PathVariable Integer id){
         return productGrpc.deleteProduct(id);
     }
+
+    @GetMapping("/variant/{id}")
+    public ProductVariantDto getVariantById(@PathVariable Long id) {
+    return productGrpc.getVariantById(id);
+
+    
+}
+
+@PostMapping("/variant")
+public ProductVariantIdDto getVariantByDetails(@RequestBody GetVariantByDetailsDto dto) {
+    Long variantId = productGrpc.getVariantByDetails(dto.getProductId(), dto.getSize(), dto.getColor());
+    return new ProductVariantIdDto(variantId);
+}
+
 }

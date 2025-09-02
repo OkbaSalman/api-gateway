@@ -1,9 +1,7 @@
 syntax = "proto3";
 
-package products;
-option java_multiple_files=true;
-option java_package="com.okbasalman.grpc";
-option java_outer_classname="ProductsProto";
+option java_package = "com.okbasalman.grpc";
+option java_multiple_files = true;
 
 import "google/protobuf/empty.proto";
 
@@ -14,8 +12,22 @@ service ProductService {
     rpc UpdateProduct (UpdateProductRequest) returns (ProductResponse);
     rpc DeleteProduct (DeleteProductRequest) returns (DeleteProductResponse);
     rpc DecreaseStock (DecreaseStockRequest) returns (ProductResponse);
+
+    rpc GetVariantById (GetVariantByIdRequest) returns (ProductVariantResponse);
+     rpc GetVariantByDetails (GetVariantByDetailsRequest) returns (GetVariantByDetailsResponse);
 }
 
+// Request to get variant by details
+message GetVariantByDetailsRequest {
+  int64 productId = 1;
+  string size = 2;
+  string color = 3;
+}
+
+// Response only contains the variant ID
+message GetVariantByDetailsResponse {
+  int64 variantId = 1;
+}
 
 message ProductImageResponse {
     int64 id = 1;
@@ -43,8 +55,11 @@ message ProductListResponse {
     repeated ProductResponse products = 1;
 }
 
-// Requests
 message GetProductByIdRequest {
+    int64 id = 1;
+}
+
+message GetVariantByIdRequest {
     int64 id = 1;
 }
 
