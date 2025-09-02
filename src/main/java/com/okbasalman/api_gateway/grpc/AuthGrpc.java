@@ -5,7 +5,7 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 
 import jakarta.annotation.PostConstruct;
-
+import com.okbasalman.api_gateway.dto.auth.RefreshResponseDto;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -65,12 +65,12 @@ public class AuthGrpc {
     public ResponseEntity<?> refreshToken(String refreshDto){
         try {
             
-            System.out.println("res111: ");
             RefreshResponse response=stub.refreshToken(RefreshRequest.newBuilder().setRefreshToken(refreshDto).build());
-            ResponseLoginDto res= new ResponseLoginDto(response.getAccessToken(),response.getExpiresIn(),response.getRefreshExpiresIn(),response.getRefreshToken(),response.getRole());
+            System.out.println("res111: "+refreshDto);
+            RefreshResponseDto res= new RefreshResponseDto(response.getAccessToken(),response.getExpiresIn(),response.getRefreshExpiresIn(),response.getRefreshToken());
             return ResponseEntity.status(200).body(res);
         } catch (Exception e) {
-            return ResponseEntity.status(400).body("Refresh Token is expired");
+            return ResponseEntity.status(405).body("Refresh Token is expired");
         }
     }
     public ResponseEntity<?> saveEmail(String email){

@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.okbasalman.api_gateway.dto.auth.DeleteDto;
 import com.okbasalman.api_gateway.dto.auth.LoginDto;
-
+import com.okbasalman.api_gateway.dto.auth.RefreshResponseDto;
 import com.okbasalman.api_gateway.dto.auth.RegisterDto;
 import com.okbasalman.api_gateway.dto.auth.ResponseLoginDto;
 import com.okbasalman.api_gateway.dto.auth.ToggleFavoriteProductDto;
@@ -54,21 +54,13 @@ public class AuthRest {
         
             return ResponseEntity.notFound().build();
         }
-
-        Cookie refreshTokenCookie = new Cookie("refreshToken", tokens.getRefresh_token());
-        refreshTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setSecure(true);
-        refreshTokenCookie.setPath("/");
-        refreshTokenCookie.setMaxAge(tokens.getRefresh_expires_in());
-        response.addCookie(refreshTokenCookie);
-
-        // Add SameSite manually
+        // Use only this method:
         String cookieValue = String.format("refreshToken=%s; Max-Age=%d; Path=/; HttpOnly; Secure; SameSite=Strict",
             tokens.getRefresh_token(), tokens.getRefresh_expires_in());
         response.setHeader("Set-Cookie", cookieValue);
 
         ResponseLoginDto bodyWithoutRefresh = new ResponseLoginDto(tokens.getAccess_token(),
-                                  tokens.getExpires_in(), 0, null,tokens.getRole());
+                                  tokens.getExpires_in(), 0, null, tokens.getRole());
         return ResponseEntity.ok(bodyWithoutRefresh);
     }
     return loginResponse;
@@ -98,7 +90,8 @@ public ResponseEntity<?> login(@RequestBody LoginDto request, HttpServletRespons
         return authGrpc.register(request);
     }
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(@CookieValue(name = "refreshToken", required = false) String request){
+    public ResponseEntity<?> logout(@CookieValue(name = "refreshToken", required = false) String request,HttpServletResponse response){
+        response.setHeader("Set-Cookie", "refreshToken=; Max-Age=0; Path=/; HttpOnly; Secure; SameSite=Strict");
         return authGrpc.logout(request);
     }
 @PostMapping("/refreshToken")
@@ -107,9 +100,8 @@ public ResponseEntity<?> refreshToken(
         HttpServletResponse response) {
     
     ResponseEntity<?> refreshResponse = authGrpc.refreshToken(refreshToken);
-    System.out.println("refreshToken: "+refreshResponse.getStatusCodeValue());
     if (refreshResponse.getStatusCode().is2xxSuccessful()) {
-        ResponseLoginDto tokens = (ResponseLoginDto) refreshResponse.getBody();
+        RefreshResponseDto tokens = (RefreshResponseDto) refreshResponse.getBody();
 
         // 🔹 Issue a new refresh token cookie
         String cookieValue = String.format(
@@ -119,12 +111,11 @@ public ResponseEntity<?> refreshToken(
         response.setHeader("Set-Cookie", cookieValue);
 
         // 🔹 Return only access token (no refresh token in body)
-        ResponseLoginDto bodyWithoutRefresh = new ResponseLoginDto(
+        RefreshResponseDto bodyWithoutRefresh = new RefreshResponseDto(
             tokens.getAccess_token(),
             tokens.getExpires_in(),
             0, 
-            null,
-            tokens.getRole()
+            null
         );
         return ResponseEntity.ok(bodyWithoutRefresh);
     }

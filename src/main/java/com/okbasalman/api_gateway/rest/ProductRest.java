@@ -1,9 +1,10 @@
 package com.okbasalman.api_gateway.rest;
 
 import java.util.List;
-
+import java.util.Map;
 
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,7 +13,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 
@@ -35,34 +35,33 @@ public class ProductRest {
 
     @GetMapping("/{id}")
     public ProductDto geProduct(@PathVariable Long id){
-        System.out.println("1231243");
         return  productGrpc.getProductById(id);
     }
 
     @GetMapping
-    public List<ProductDto> getAllProducts(@AuthenticationPrincipal Jwt jwt){
-        //  if (jwt == null) {
-        //     return List.of();
-        // }
-
-        // Map<String, Object> resourceAccess = jwt.getClaim("resource_access");
-        // if (resourceAccess == null) {
-        //     return List.of();
-        // }
-
-        // Map<String, Object> serviceAccess =
-        //         (Map<String, Object>) resourceAccess.get("authentication-service");
-        // if (serviceAccess == null) {
-        //     return List.of();
-        // }
-
-        // List<String> roles = (List<String>) serviceAccess.get("roles");
+    public List<ProductDto> getAllProducts(){
+        
         return productGrpc.getAllProducts();
     }
 
     @PostMapping
-    public ProductDto createProduct(@RequestBody ProductCreateDto dto){
-        return productGrpc.createProduct(dto);
+    public ResponseEntity<?> createProduct(@RequestBody ProductCreateDto dto,@AuthenticationPrincipal Jwt jwt){
+
+        try {
+            Map<String, Object> resourceAccess = jwt.getClaim("resource_access");
+
+
+        Map<String, Object> serviceAccess =
+                (Map<String, Object>) resourceAccess.get("authentication-service");
+
+        List<String> roles = (List<String>) serviceAccess.get("roles");
+        String role=(String)roles.get(0);
+        if(role.equals("ADMIN"))
+        return ResponseEntity.status(200).body(productGrpc.createProduct(dto));
+        return ResponseEntity.status(401).body("Invalid credential");
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body("error: "+e.getMessage());
+        }
     }
 
     @PutMapping("/{id}")
