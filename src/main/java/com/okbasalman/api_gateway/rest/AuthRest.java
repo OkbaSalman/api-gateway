@@ -3,11 +3,11 @@ package com.okbasalman.api_gateway.rest;
 
 
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 import org.springframework.web.bind.annotation.PostMapping;
 
@@ -140,8 +140,9 @@ public ResponseEntity<?> refreshToken(
     }
     @PostMapping("/toggleFavoriteProduct")
     public ResponseEntity<?> toggleFavoriteProduct(@RequestBody ToggleFavoriteProductDto toggleFavoriteProductDto,@AuthenticationPrincipal Jwt jwt){
-        System.out.println("12331241");
         Map<String, Object> claims = jwt.getClaims();
+
+        System.out.println("123312412 "+claims);
         String email =(String) claims.get("email");
         return authGrpc.toggleFavoriteProduct(email,toggleFavoriteProductDto.getId());
     }

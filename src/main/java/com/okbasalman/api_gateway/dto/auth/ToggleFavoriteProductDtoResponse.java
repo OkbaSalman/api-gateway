@@ -7,5 +7,5 @@ import lombok.Data;
 @Data
 public class ToggleFavoriteProductDtoResponse {
     private String username;
-    private List<String> toggleFavoriteProduc;
+    private List<String> toggleFavoriteProduct;
 }

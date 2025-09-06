@@ -9,7 +9,8 @@ import lombok.Data;
 @AllArgsConstructor
 public class OrderItemDto {
     @JsonProperty("product_id")
-    private Long productId;
+    private Long product_id ;
+    private Long product_variant_id ;
     private int quantity;
     
 }

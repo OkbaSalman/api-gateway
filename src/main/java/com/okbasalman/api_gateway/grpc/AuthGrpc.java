@@ -87,7 +87,7 @@ public class AuthGrpc {
             UserInfoResponse response = stub.getUserInfo(UserInfoRequest.newBuilder().setEmail(email).build());
             ToggleFavoriteProductDtoResponse toggleFavoriteProductDtoResponse=new ToggleFavoriteProductDtoResponse();
             toggleFavoriteProductDtoResponse.setUsername(response.getUsername());
-            toggleFavoriteProductDtoResponse.setToggleFavoriteProduc(response.getFavoriteProductsList());
+            toggleFavoriteProductDtoResponse.setToggleFavoriteProduct(response.getFavoriteProductsList());
             System.out.println("asdads:"+response.getFavoriteProductsList());
             return ResponseEntity.status(200).body(toggleFavoriteProductDtoResponse);
         } catch (Exception e) {

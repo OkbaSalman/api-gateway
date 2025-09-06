@@ -36,11 +36,12 @@ public class OrderGrpc {
 
         dto.getItems().forEach(item ->
             builder.addItems(OrderItem.newBuilder()
-                .setProductId(item.getProductId())
+                .setProductId(item.getProduct_id())
                 .setQuantity(item.getQuantity())
+                .setProductVariantId(item.getProduct_variant_id())
                 .build())
         );
-
+        System.out.println("id2121");
         CreateOrderResponse response = orderStub.createOrder(builder.build());
         return new CreateOrderResultDto(response.getSuccess(), response.getMessage(), response.getOrderId());
     }
@@ -54,7 +55,7 @@ public class OrderGrpc {
                 order.getUserId(),
                 order.getStatus(),
                 order.getItemsList().stream().map(item ->
-                    new OrderItemDto(item.getProductId(), item.getQuantity())
+                    new OrderItemDto(item.getProductId(), item.getProductVariantId(),item.getQuantity())
                 ).collect(Collectors.toList()),
                 order.getCreatedAt().getSeconds() * 1000 // or format timestamp if needed
             )
@@ -72,7 +73,7 @@ public class OrderGrpc {
                 order.getUserId(),
                 order.getStatus(),
                 order.getItemsList().stream().map(item ->
-                    new OrderItemDto(item.getProductId(), item.getQuantity())
+                    new OrderItemDto(item.getProductId(), item.getProductVariantId(),item.getQuantity())
                 ).collect(Collectors.toList()),
                 order.getCreatedAt().getSeconds() * 1000
             )

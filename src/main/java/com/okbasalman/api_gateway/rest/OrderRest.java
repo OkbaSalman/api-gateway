@@ -20,9 +20,11 @@ public class OrderRest {
 
     @PostMapping
     public CreateOrderResultDto createOrder(@RequestBody OrderCreateDto dto ,@AuthenticationPrincipal Jwt jwt) {
+        System.out.println("order is here");
         Map<String, Object> claims = jwt.getClaims();
         String email =(String) claims.get("email");
         String id =(String) claims.get("sub");
+        System.out.println(id+email+dto);
         return orderGrpc.createOrder(dto,email,id);
     }
 
