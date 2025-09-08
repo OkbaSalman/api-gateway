@@ -30,17 +30,19 @@ public class OrderGrpc {
 
     public CreateOrderResultDto createOrder(OrderCreateDto dto,String email,String id) {
         CreateOrderRequest.Builder builder = CreateOrderRequest.newBuilder()
-                .setUserId(id)
-                .setEmail(email)
-                .setAddress(dto.getAddress());
-
+        .setUserId(id)
+        .setEmail(email)
+        .setAddress(dto.getAddress());
         dto.getItems().forEach(item ->
-            builder.addItems(OrderItem.newBuilder()
-                .setProductId(item.getProduct_id())
-                .setQuantity(item.getQuantity())
-                .setProductVariantId(item.getProduct_variant_id())
-                .build())
+        System.out.println("item!"+item.getProduct_id()));
+        dto.getItems().forEach(item ->
+        builder.addItems(OrderItem.newBuilder()
+        .setProductId(item.getProduct_id())
+        .setQuantity(item.getQuantity())
+        .setProductVariantId(item.getProduct_variant_id())
+        .build())
         );
+        System.out.println("sasa: "+dto.getAddress()+email+id);
         System.out.println("id2121");
         CreateOrderResponse response = orderStub.createOrder(builder.build());
         return new CreateOrderResultDto(response.getSuccess(), response.getMessage(), response.getOrderId());

@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-
+import com.okbasalman.api_gateway.dto.order.OrderCreateDto;
 import com.okbasalman.api_gateway.dto.product.DeleteProductResultDto;
 import com.okbasalman.api_gateway.dto.product.GetVariantByDetailsDto;
 import com.okbasalman.api_gateway.dto.product.ProductDto;
@@ -65,14 +65,36 @@ public class ProductRest {
     }
 
     @PutMapping("/{id}")
-    public ProductDto updateProduct(@RequestBody ProductDto product){
-        System.out.println(product);
-        return productGrpc.updateProduct(product);
+    public ResponseEntity<?> updateProduct(@RequestBody ProductDto product,@AuthenticationPrincipal Jwt jwt){
+        Map<String, Object> resourceAccess = jwt.getClaim("resource_access");
+
+
+        Map<String, Object> serviceAccess =
+                (Map<String, Object>) resourceAccess.get("authentication-service");
+
+        List<String> roles = (List<String>) serviceAccess.get("roles");
+        String role=(String)roles.get(0);
+        System.out.println(role);
+    
+        
+        if(role.equals("ADMIN"))
+        return ResponseEntity.status(200).body(productGrpc.updateProduct(product));
+        return ResponseEntity.status(401).body("Invalid credential");
     }
 
     @DeleteMapping("/{id}")
-    public DeleteProductResultDto deleteProduct(@PathVariable Integer id){
-        return productGrpc.deleteProduct(id);
+    public ResponseEntity<?> deleteProduct(@PathVariable Integer id,@AuthenticationPrincipal Jwt jwt){
+        Map<String, Object> resourceAccess = jwt.getClaim("resource_access");
+
+
+        Map<String, Object> serviceAccess =
+                (Map<String, Object>) resourceAccess.get("authentication-service");
+
+        List<String> roles = (List<String>) serviceAccess.get("roles");
+        String role=(String)roles.get(0);
+        if(role.equals("ADMIN"))
+        return ResponseEntity.status(200).body(productGrpc.deleteProduct(id));
+        return ResponseEntity.status(401).body("Invalid credential");
     }
 
     @GetMapping("/variant/{id}")

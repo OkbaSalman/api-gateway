@@ -55,7 +55,7 @@ public class AuthRest {
             return ResponseEntity.notFound().build();
         }
         // Use only this method:
-        String cookieValue = String.format("refreshToken=%s; Max-Age=%d; Path=/; HttpOnly; Secure; SameSite=Strict",
+        String cookieValue = String.format("refreshToken=%s; Max-Age=%d; Path=/; HttpOnly; SameSite=Strict",
             tokens.getRefresh_token(), tokens.getRefresh_expires_in());
         response.setHeader("Set-Cookie", cookieValue);
 
@@ -73,7 +73,7 @@ public ResponseEntity<?> login(@RequestBody LoginDto request, HttpServletRespons
         ResponseLoginDto tokens = (ResponseLoginDto) loginResponse.getBody();
 
         // Use only this method:
-        String cookieValue = String.format("refreshToken=%s; Max-Age=%d; Path=/; HttpOnly; Secure; SameSite=Strict",
+        String cookieValue = String.format("refreshToken=%s; Max-Age=%d; Path=/; HttpOnly; SameSite=Strict",
             tokens.getRefresh_token(), tokens.getRefresh_expires_in());
         response.setHeader("Set-Cookie", cookieValue);
 
@@ -91,7 +91,7 @@ public ResponseEntity<?> login(@RequestBody LoginDto request, HttpServletRespons
     }
     @PostMapping("/logout")
     public ResponseEntity<?> logout(@CookieValue(name = "refreshToken", required = false) String request,HttpServletResponse response){
-        response.setHeader("Set-Cookie", "refreshToken=; Max-Age=0; Path=/; HttpOnly; Secure; SameSite=Strict");
+        response.setHeader("Set-Cookie", "refreshToken=; Max-Age=0; Path=/; HttpOnly; SameSite=Strict");
         return authGrpc.logout(request);
     }
 @PostMapping("/refreshToken")
@@ -105,7 +105,7 @@ public ResponseEntity<?> refreshToken(
 
         // 🔹 Issue a new refresh token cookie
         String cookieValue = String.format(
-            "refreshToken=%s; Max-Age=%d; Path=/; HttpOnly; Secure; SameSite=Strict",
+            "refreshToken=%s; Max-Age=%d; Path=/; HttpOnly; SameSite=Strict",
             tokens.getRefresh_token(), tokens.getRefresh_expires_in()
         );
         response.setHeader("Set-Cookie", cookieValue);
@@ -121,7 +121,7 @@ public ResponseEntity<?> refreshToken(
     }
 
     // ❌ Refresh failed → clear cookie
-    response.setHeader("Set-Cookie", "refreshToken=; Max-Age=0; Path=/; HttpOnly; Secure; SameSite=Strict");
+    response.setHeader("Set-Cookie", "refreshToken=; Max-Age=0; Path=/; HttpOnly; SameSite=Strict");
     return refreshResponse;
 }
 

@@ -19,7 +19,7 @@ public class AuthGrpc {
     private String apiGatewayKey;
     @PostConstruct
     public void init() {
-        channel = ManagedChannelBuilder.forAddress("localhost", 9090)
+        channel = ManagedChannelBuilder.forAddress("13.60.254.214", 9090)
                 .usePlaintext() 
                 .build();
         stub = AuthServiceGrpc

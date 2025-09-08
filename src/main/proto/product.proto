@@ -14,7 +14,7 @@ service ProductService {
     rpc DecreaseStock (DecreaseStockRequest) returns (ProductResponse);
 
     rpc GetVariantById (GetVariantByIdRequest) returns (ProductVariantResponse);
-     rpc GetVariantByDetails (GetVariantByDetailsRequest) returns (GetVariantByDetailsResponse);
+    rpc GetVariantByDetails (GetVariantByDetailsRequest) returns (GetVariantByDetailsResponse);
 }
 
 // Request to get variant by details
